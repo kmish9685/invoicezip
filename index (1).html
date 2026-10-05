@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InvoiceZip — Bulk invoice PDF downloader for Xero</title>
+<meta name="description" content="Download hundreds of Xero invoices as separate PDFs, with attachments, in one click. Runs entirely in your browser.">
+<style>
+  :root {
+    --ink: #17212b;
+    --muted: #55626f;
+    --line: #e3e7eb;
+    --bg: #fbfaf7;
+    --card: #ffffff;
+    --accent: #13795b;
+    --accent-soft: #e6f2ed;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font: 17px/1.65 Georgia, "Iowan Old Style", "Times New Roman", serif;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  .sans { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header { border-bottom: 1px solid var(--line); }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; gap: 16px; flex-wrap: wrap; }
+  .logo { font: 700 19px system-ui, sans-serif; color: var(--ink); text-decoration: none; }
+  .logo span { color: var(--accent); }
+  nav .links a { font: 15px system-ui, sans-serif; color: var(--muted); text-decoration: none; margin-left: 18px; }
+  nav .links a:hover { color: var(--ink); }
+
+  .hero { padding: 72px 0 56px; }
+  .hero h1 { font-size: clamp(32px, 5vw, 48px); line-height: 1.15; margin: 0 0 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .hero p.lead { font-size: 20px; color: var(--muted); margin: 0 0 28px; max-width: 640px; }
+  .badge { display: inline-block; font: 600 13px system-ui, sans-serif; color: var(--accent); background: var(--accent-soft); padding: 4px 10px; border-radius: 999px; margin-bottom: 18px; }
+  .btn { display: inline-block; font: 600 16px system-ui, sans-serif; background: var(--accent); color: #fff; padding: 13px 22px; border-radius: 6px; text-decoration: none; }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); margin-left: 10px; }
+
+  .example { margin-top: 36px; background: #17212b; color: #d8e1e8; border-radius: 8px; padding: 18px 22px; font: 14px/1.7 ui-monospace, Menlo, Consolas, monospace; overflow-x: auto; }
+  .example .dim { color: #8696a4; }
+
+  section { padding: 48px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 28px; margin: 0 0 18px; }
+  h3 { font: 600 18px system-ui, sans-serif; margin: 26px 0 6px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 22px; }
+  .card h3 { margin-top: 0; }
+  .card p { margin: 0; color: var(--muted); }
+
+  .price { font: 700 36px system-ui, sans-serif; margin: 6px 0; }
+  .price small { font-size: 15px; font-weight: 400; color: var(--muted); }
+  .card ul { padding-left: 20px; margin: 12px 0 0; color: var(--muted); }
+  .card.featured { border: 2px solid var(--accent); }
+
+  .policy p, .policy li { color: #2c3742; }
+  .policy ul { padding-left: 22px; }
+  .updated { font: 14px system-ui, sans-serif; color: var(--muted); }
+
+  footer { border-top: 1px solid var(--line); padding: 32px 0 48px; font: 14px/1.6 system-ui, sans-serif; color: var(--muted); }
+  footer a { color: var(--muted); }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="#">Invoice<span>Zip</span></a>
+      <div class="links">
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div class="badge sans">Chrome extension · Coming soon to the Chrome Web Store</div>
+    <h1>Download all your Xero invoices as separate PDFs. In one click.</h1>
+    <p class="lead">Tick the invoices you need, or select every page, and get one zip with each invoice as its own PDF, plus its attachments, sorted into folders by month. No more opening invoices one by one.</p>
+    <a class="btn" href="#pricing">See pricing</a>
+    <a class="btn ghost" href="#privacy">How your data stays private</a>
+
+    <div class="example">
+      <span class="dim">xero-invoices-2026-10-04.zip</span><br>
+      ├── 2026-08/<br>
+      │&nbsp;&nbsp;&nbsp;├── INV-0011 - Petrie McLoud Watson &amp; Associates.pdf<br>
+      │&nbsp;&nbsp;&nbsp;└── INV-0012 - City Limousines.pdf<br>
+      ├── 2026-09/<br>
+      │&nbsp;&nbsp;&nbsp;├── INV-0036 - Petrie McLoud Watson &amp; Associates.pdf<br>
+      │&nbsp;&nbsp;&nbsp;└── INV-0036 - attachments/receipt.pdf<br>
+      └── 2026-10/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;└── INV-0028 - Bayside Club.pdf
+    </div>
+  </div>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>1. Open your invoice list</h3>
+          <p>In Xero, go to Sales → Invoices. Use Xero's own tabs and date filters to narrow down what you need.</p>
+        </div>
+        <div class="card">
+          <h3>2. Tick, or select all pages</h3>
+          <p>Checkboxes appear next to each invoice. One link selects every invoice across all pages of the list.</p>
+        </div>
+        <div class="card">
+          <h3>3. Get one tidy zip</h3>
+          <p>Each invoice is saved as its own PDF, named with its number and contact, with attachments alongside, in month folders.</p>
+        </div>
+      </div>
+
+      <h3>Built for bookkeepers and accountants</h3>
+      <p>Year-end handovers, audits, client requests, moving to new software: anywhere you need individual invoice PDFs, InvoiceZip saves hours of clicking.</p>
+
+      <h3>Private by design</h3>
+      <p>InvoiceZip runs inside your own browser and uses your existing Xero login. It doesn't connect to Xero's API, doesn't need admin rights, and never sends your invoices or financial data to us or anyone else. Files go straight from Xero to your computer.</p>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <h2>Pricing</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Free</h3>
+          <div class="price">$0</div>
+          <ul>
+            <li>Up to 25 invoices per month</li>
+            <li>Attachments included</li>
+            <li>Folders by month</li>
+          </ul>
+        </div>
+        <div class="card featured">
+          <h3>Lifetime license</h3>
+          <div class="price">$29 <small>one-time payment</small></div>
+          <ul>
+            <li>Unlimited invoices</li>
+            <li>All pages of your list in one click</li>
+            <li>All future updates</li>
+            <li>14-day money-back guarantee</li>
+          </ul>
+        </div>
+      </div>
+      <p class="updated" style="margin-top:18px">Prices in US dollars. Applicable taxes are calculated at checkout. Payments are processed by Dodo Payments, our merchant of record. After payment, your license key is emailed to you instantly. Enter it in the extension to unlock unlimited use.</p>
+    </div>
+  </section>
+
+  <section id="privacy" class="policy">
+    <div class="wrap">
+      <h2>Privacy policy</h2>
+      <p class="updated">Last updated: 5 October 2026</p>
+      <p>InvoiceZip is a browser extension. This policy explains what data it handles and what it doesn't.</p>
+      <h3>What the extension does with your data</h3>
+      <ul>
+        <li>It reads the invoice list and invoice files from your Xero account, using the login you already have open in your browser, only when you ask it to download.</li>
+        <li>It saves those files directly to your computer as a zip file.</li>
+        <li>Your invoices, contacts, amounts and attachments are never sent to us or to any third party. We have no server that receives them.</li>
+        <li>Your Xero login details are used only inside your browser, for requests to Xero itself, and are never stored permanently or shared.</li>
+      </ul>
+      <h3>Licensing and payments</h3>
+      <ul>
+        <li>If you buy a license, Dodo Payments processes your payment and handles your billing details (name, email, payment information) under its own privacy policy. We don't see or store your card details.</li>
+        <li>To check that a license is valid, the extension sends your license key to Dodo Payments' license service. No invoice data is included.</li>
+        <li>We receive your email address from Dodo Payments to provide support and send license-related messages.</li>
+      </ul>
+      <h3>What we don't do</h3>
+      <ul>
+        <li>No analytics or tracking of your Xero data.</li>
+        <li>No selling or sharing of personal data.</li>
+        <li>No advertising.</li>
+      </ul>
+      <h3>Your rights</h3>
+      <p>You can ask us to delete your email and license records at any time by contacting us at the address below. Uninstalling the extension removes all of its local data from your browser.</p>
+    </div>
+  </section>
+
+  <section id="terms" class="policy">
+    <div class="wrap">
+      <h2>Terms of service</h2>
+      <p class="updated">Last updated: 5 October 2026</p>
+      <ul>
+        <li><strong>The service.</strong> InvoiceZip is a Chrome extension that helps you download invoices from your own Xero account. You must have the right to access the Xero account you use it with.</li>
+        <li><strong>License.</strong> A free license allows up to 25 invoices per month. A paid lifetime license allows unlimited use by one person, and is not transferable or resellable.</li>
+        <li><strong>Your responsibility.</strong> You're responsible for how you use and store the files you download, and for following Xero's terms of use.</li>
+        <li><strong>No affiliation.</strong> InvoiceZip is an independent product and is not affiliated with, endorsed by, or sponsored by Xero Limited. Xero is a trademark of Xero Limited.</li>
+        <li><strong>Changes to Xero.</strong> Xero may change its website at any time, which can temporarily stop the extension working. We'll make reasonable efforts to release fixes, but can't guarantee uninterrupted service.</li>
+        <li><strong>No warranty.</strong> The extension is provided "as is". To the extent permitted by law, we're not liable for indirect or consequential losses arising from its use. Our total liability is limited to the amount you paid for your license.</li>
+        <li><strong>Governing law.</strong> These terms are governed by the laws of India.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="refunds" class="policy">
+    <div class="wrap">
+      <h2>Refund policy</h2>
+      <p class="updated">Last updated: 5 October 2026</p>
+      <p>If InvoiceZip doesn't work for you, email us within <strong>14 days</strong> of purchase and we'll refund you in full. No questions asked. Refunds are issued to your original payment method through Dodo Payments and usually arrive within 5–10 business days. After a refund, the license key is deactivated.</p>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap">
+      <h2>Contact</h2>
+      <p>Questions, support, or refund requests: <a href="mailto:kmish9685@gmail.com">kmish9685@gmail.com</a></p>
+      <p>InvoiceZip is made by Kuldeep Prasad Mishra, an independent developer based in India.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    © 2026 Kuldeep Prasad Mishra ·
+    <a href="#privacy">Privacy</a> ·
+    <a href="#terms">Terms</a> ·
+    <a href="#refunds">Refunds</a> ·
+    <a href="#contact">Contact</a><br>
+    InvoiceZip is not affiliated with Xero Limited. Xero is a trademark of Xero Limited.
+  </div>
+</footer>
+
+</body>
+</html>
